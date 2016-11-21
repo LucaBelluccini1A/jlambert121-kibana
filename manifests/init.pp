@@ -115,6 +115,8 @@ class kibana (
   $verify_ssl             = $::kibana::params::verify_ssl,
   $base_path              = $::kibana::params::base_path,
   $log_file               = $::kibana::params::log_file,
+  $manage_user            = $::kibana::params::manage_user,
+  $manage_group           = $::kibana::params::manage_group,
 ) inherits kibana::params {
 
   if !is_integer($port) {
@@ -132,6 +134,8 @@ class kibana (
   validate_absolute_path($log_file)
   validate_bool($es_preserve_host)
   validate_bool($verify_ssl)
+  validate_bool($manage_user)
+  validate_bool($manage_group)
 
   if ( $ssl_cert_file != undef) {
     validate_absolute_path($ssl_cert_file)

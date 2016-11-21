@@ -28,6 +28,8 @@ class kibana::params {
   $user                   = 'kibana'
   $base_path              = undef
   $log_file               = '/var/log/kibana/kibana.log'
+  $manage_user            = true
+  $manage_group           = true
 
   # Download tool
 

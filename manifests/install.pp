@@ -12,6 +12,8 @@ class kibana::install (
   $user                = $::kibana::user,
   $log_file            = $::kibana::log_file,
   $pid_file            = $::kibana::pid_file,
+  $manage_user         = $::kibana::manage_user,
+  $manage_group        = $::kibana::manage_group,
 ) {
   if '4.6' in $version {
     $filename = $::architecture ? {
@@ -30,18 +32,22 @@ class kibana::install (
   $run_path         = $::kibana::params::run_path
   $log_path         = dirname($log_file)
   
-  group { $group:
-    ensure => 'present',
-    system => true,
+  if($manage_group) {
+    group { $group:
+      ensure => 'present',
+      system => true,
+    }
   }
 
-  user { $user:
-    ensure  => 'present',
-    system  => true,
-    gid     => $group,
-    home    => $install_path,
-    require => Group[$group],
-    managehome => true,
+  if($manage_user) {
+    user { $user:
+      ensure  => 'present',
+      system  => true,
+      gid     => $group,
+      home    => $install_path,
+      require => Group[$group],
+      managehome => true,
+    }
   }
 
   exec { 'download_kibana':
@@ -50,7 +56,7 @@ class kibana::install (
     require     => User[$user],
     unless      => "test -e ${install_path}/${filename}/LICENSE.txt",
   }
-  
+
   exec { 'extract_kibana':
     command => "tar -xzf ${tmp_dir}/${filename}.tar.gz -C ${install_path}",
     path    => ['/bin', '/sbin'],
@@ -79,14 +85,14 @@ class kibana::install (
     ensure  => directory,
     owner   => kibana,
     group   => kibana,
-    require => User['kibana'],
+    require => User[$user],
   }
 
   file { "${log_path}":
     ensure  => directory,
     owner   => kibana,
     group   => kibana,
-    require => User['kibana'],
+    require => User[$user],
   }
 
   if $service_provider == 'init' {
