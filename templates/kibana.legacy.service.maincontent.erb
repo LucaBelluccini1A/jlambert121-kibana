@@ -29,11 +29,11 @@ fi
 
 touch $pidfile
 chown "$KIBANA_USER":"$KIBANA_GROUP" "$pidfile"
-chmod 755 "$pidfile"
+chmod 640 "$pidfile"
 
 touch $KIBANA_LOG
 chown "$KIBANA_USER":"$KIBANA_GROUP" "$KIBANA_LOG"
-chmod 755 "$KIBANA_LOG"
+chmod 640 "$KIBANA_LOG"
 
 exec=$KIBANA_HOME/bin/$prog
 lockfile=/var/lock/subsys/$prog
