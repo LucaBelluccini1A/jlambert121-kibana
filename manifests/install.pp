@@ -61,24 +61,35 @@ class kibana::install (
     command => "tar -xzf ${tmp_dir}/${filename}.tar.gz -C ${install_path}",
     path    => ['/bin', '/sbin'],
     creates => "${install_path}/${filename}",
-    notify  => Exec['ensure_correct_permissions'],
+    notify  => Exec['ensure_correct_owner'],
     require => Exec['download_kibana'],
   }
 
-  exec { 'ensure_correct_permissions':
+  exec { 'ensure_correct_owner':
     command     => "chown -R ${user}:${group} ${install_path}/${filename}",
     path        => ['/bin', '/sbin'],
     refreshonly => true,
+    notify      => Exec['ensure_correct_permissions'],
     require     => [
-        Exec['extract_kibana'],
-        User[$user],
+      Exec['extract_kibana'],
+      User[$user],
     ],
+  }
+
+  exec { 'ensure_correct_permissions':
+    command     => "chmod -R o-rwX ${install_path}/${filename}",
+    path        => ['/bin', '/sbin'],
+    refreshonly => true,
+    notify      => File["${install_path}/kibana"],
+    require     => Exec['ensure_correct_owner'],
   }
 
   file { "${install_path}/kibana":
     ensure  => 'link',
+    owner   => $user,
+    group   => $group,
     target  => "${install_path}/${filename}",
-    require => Exec['extract_kibana'],
+    require => Exec['ensure_correct_owner'],
   }
 
   file { "${install_path}/kibana/installedPlugins":
