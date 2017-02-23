@@ -117,6 +117,8 @@ class kibana (
   $log_file               = $::kibana::params::log_file,
   $manage_user            = $::kibana::params::manage_user,
   $manage_group           = $::kibana::params::manage_group,
+  $user                   = $::kibana::params::user,
+  $group                  = $::kibana::params::group,
 ) inherits kibana::params {
 
   if !is_integer($port) {

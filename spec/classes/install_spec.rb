@@ -9,8 +9,7 @@ describe 'kibana::install', :type => :class do
     :osfamily => 'RedHat',
     :http_proxy => false,
     :https_proxy => false,
-    :architecture => 'amd64',
-    :operatingsystemmajrelease => '7'
+    :architecture => 'amd64'
   }
 
   context 'with defaults for all parameters' do
@@ -23,12 +22,12 @@ describe 'kibana::install', :type => :class do
 
     it { should contain_user('kibana') }
     it { should contain_group('kibana') }
-    it { should contain_wget__fetch('kibana').with(
-      :source => 'https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x64.tar.gz',
-      :destination => '/tmp/kibana-4.0.1-linux-x64.tar.gz'
+    it { should contain_exec('download_kibana').with(
+      :command => 'wget --no-check-certificate -O /tmp/kibana-4.0.1-linux-x64.tar.gz https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x64.tar.gz 2> /dev/null',
       ) }
     it { should contain_exec('extract_kibana').with(:command => 'tar -xzf /tmp/kibana-4.0.1-linux-x64.tar.gz -C /opt' ) }
-    it { should contain_exec('ensure_correct_permissions').with(:command => 'chown -R kibana:kibana /opt/kibana-4.0.1-linux-x64', :require => ["Exec[extract_kibana]","User[kibana]"]) }
+    it { should contain_exec('ensure_correct_permissions').with(:command => 'chmod -R o-rwX /opt/kibana-4.0.1-linux-x64')}
+    it { should contain_exec('ensure_correct_owner').with(:command => 'chown -R kibana:kibana /opt/kibana-4.0.1-linux-x64', :require => ["Exec[extract_kibana]","User[kibana]"]) }
     it { should contain_file('/opt/kibana').with(:target => '/opt/kibana-4.0.1-linux-x64') }
     it { should contain_file('/var/log/kibana').with({
         'ensure'  => 'directory',
@@ -51,6 +50,29 @@ describe 'kibana::install', :type => :class do
 
   end
 
+  context 'with a 4.6 version and custom install path' do
+
+  let (:facts) {
+    default_facts
+  }
+
+  let (:params) {
+    {
+      :install_path => '/opt',
+      :version      => '4.6.1',
+      :manage_user  => false,
+      :manage_group => false,
+      :user         => 'kibana',
+      :group        => 'kibana',
+    }
+  }
+
+  it { should contain_exec('ensure_correct_permissions').with(:command => 'chmod -R o-rwX /opt/kibana-4.6.1-linux-x86_64')}
+  it { should contain_exec('ensure_correct_owner').with(:command => 'chown -R kibana:kibana /opt/kibana-4.6.1-linux-x86_64', :require => ["Exec[extract_kibana]","User[kibana]"]) }
+
+
+  end
+
   context 'with a different user and group' do
 
     let (:facts) {
@@ -62,12 +84,16 @@ describe 'kibana::install', :type => :class do
         :group        => 'test_group',
         :user         => 'test_user',
         :install_path => '/opt',
-        :version      => '4.0.1'
+        :version      => '4.0.1',
+        :manage_user  => true,
+        :manage_group => true,
       }
     }
 
     it { should contain_user('test_user') }
-    it { should contain_exec('ensure_correct_permissions').with(:command => 'chown -R test_user:test_group /opt/kibana-4.0.1-linux-x64', :require => ["Exec[extract_kibana]","User[test_user]"]) }
+    it { should contain_exec('ensure_correct_permissions').with(:command => 'chmod -R o-rwX /opt/kibana-4.0.1-linux-x64')}
+    it { should contain_exec('ensure_correct_owner').with(:command => 'chown -R test_user:test_group /opt/kibana-4.0.1-linux-x64', :require => ["Exec[extract_kibana]","User[test_user]"]) }
+
   end
 
   context 'when running on EL 7' do
@@ -131,9 +157,8 @@ describe 'kibana::install', :type => :class do
 
     let(:pre_condition) { 'include kibana'}
 
-    it { should contain_wget__fetch('kibana').with(
-      :source => 'https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x86.tar.gz',
-      :destination => '/tmp/kibana-4.0.1-linux-x86.tar.gz'
+    it { should contain_exec('download_kibana').with(
+      :command => 'wget --no-check-certificate -O /tmp/kibana-4.0.1-linux-x86.tar.gz https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x86.tar.gz 2> /dev/null',
       ) }
     it { should contain_exec('extract_kibana').with(:command => 'tar -xzf /tmp/kibana-4.0.1-linux-x86.tar.gz -C /opt' ) }
     it { should contain_file('/opt/kibana').with(:target => '/opt/kibana-4.0.1-linux-x86') }
@@ -148,9 +173,8 @@ describe 'kibana::install', :type => :class do
 
     let(:pre_condition) { 'include kibana'}
 
-    it { should contain_wget__fetch('kibana').with(
-      :source => 'https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x64.tar.gz',
-      :destination => '/tmp/kibana-4.0.1-linux-x64.tar.gz'
+    it { should contain_exec('download_kibana').with(
+      :command => 'wget --no-check-certificate -O /tmp/kibana-4.0.1-linux-x64.tar.gz https://download.elasticsearch.org/kibana/kibana/kibana-4.0.1-linux-x64.tar.gz 2> /dev/null',
       ) }
     it { should contain_exec('extract_kibana').with(:command => 'tar -xzf /tmp/kibana-4.0.1-linux-x64.tar.gz -C /opt' ) }
     it { should contain_file('/opt/kibana').with(:target => '/opt/kibana-4.0.1-linux-x64') }

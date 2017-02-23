@@ -10,7 +10,7 @@ describe 'kibana', :type => :class do
     :http_proxy => false,
     :https_proxy => false,
     :architecture => 'amd64'
-  } } 
+  } }
 
   it { should contain_class('kibana::install') }
   it { should contain_class('kibana::config') }

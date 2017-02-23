@@ -5,7 +5,7 @@
 #
 class kibana::params {
   $version                = '4.0.1'
-  $base_url               = 'https://download.elasticsearch.org/kibana/kibana'
+  $base_url               = undef
   $ca_cert                = undef
   $install_path           = '/opt'
   $tmp_dir                = '/tmp'
@@ -48,7 +48,7 @@ class kibana::params {
            for \"${::kernel}\"")
     }
   }
-  
+
   case $::operatingsystem {
     'RedHat', 'CentOS', 'Fedora', 'Scientific', 'OracleLinux', 'SLC': {
 

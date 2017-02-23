@@ -15,23 +15,46 @@ class kibana::install (
   $manage_user         = $::kibana::manage_user,
   $manage_group        = $::kibana::manage_group,
 ) {
-  if '4.6' in $version {
-    $filename = $::architecture ? {
-      /(i386|x86$)/    => "kibana-${version}-linux-x86",
-      /(amd64|x86_64)/ => "kibana-${version}-linux-x86_64",
+
+  case $version {
+    /^5\./: {
+      $default_base_url = 'https://artifacts.elastic.co/downloads/kibana'
+      $filename = $::architecture ? {
+        /(i386|x86$)/    => "kibana-${version}-linux-x86",
+        /(amd64|x86_64)/ => "kibana-${version}-linux-x86_64",
+      }
+    }
+    /^4\.6/: {
+      $default_base_url = 'https://download.elasticsearch.org/kibana/kibana'
+      $filename = $::architecture ? {
+        /(i386|x86$)/    => "kibana-${version}-linux-x86",
+        /(amd64|x86_64)/ => "kibana-${version}-linux-x86_64",
+      }
+    }
+    /^4\./: {
+      $default_base_url = 'https://download.elasticsearch.org/kibana/kibana'
+      $filename = $::architecture ? {
+        /(i386|x86$)/    => "kibana-${version}-linux-x86",
+        /(amd64|x86_64)/ => "kibana-${version}-linux-x64",
+      }
+    }
+    default: {
+      fail("Kibana version ${version} is not supported by this module")
     }
   }
-  else {
-    $filename = $::architecture ? {
-      /(i386|x86$)/    => "kibana-${version}-linux-x86",
-      /(amd64|x86_64)/ => "kibana-${version}-linux-x64",
+
+  if $base_url {
+    $base_url_t = $base_url
   }
+  else
+  {
+    $base_url_t = $default_base_url
   }
 
   $service_provider = $::kibana::params::service_provider
   $run_path         = $::kibana::params::run_path
   $log_path         = dirname($log_file)
-  
+
   if($manage_group) {
     group { $group:
       ensure => 'present',
@@ -41,20 +64,20 @@ class kibana::install (
 
   if($manage_user) {
     user { $user:
-      ensure  => 'present',
-      system  => true,
-      gid     => $group,
-      home    => $install_path,
-      require => Group[$group],
+      ensure     => 'present',
+      system     => true,
+      gid        => $group,
+      home       => $install_path,
+      require    => Group[$group],
       managehome => true,
     }
   }
 
   exec { 'download_kibana':
-    path        => [ '/bin', '/usr/bin', '/usr/local/bin' ],
-    command     => "${::kibana::params::download_tool} ${tmp_dir}/${filename}.tar.gz ${base_url}/${filename}.tar.gz 2> /dev/null",
-    require     => User[$user],
-    unless      => "test -e ${install_path}/${filename}/LICENSE.txt",
+    path    => [ '/bin', '/usr/bin', '/usr/local/bin' ],
+    command => "${::kibana::params::download_tool} ${tmp_dir}/${filename}.tar.gz ${base_url_t}/${filename}.tar.gz 2> /dev/null",
+    require => User[$user],
+    unless  => "test -e ${install_path}/${filename}/LICENSE.txt",
   }
 
   exec { 'extract_kibana':
@@ -99,7 +122,7 @@ class kibana::install (
     require => User[$user],
   }
 
-  file { "${log_path}":
+  file { $log_path:
     ensure  => directory,
     owner   => kibana,
     group   => kibana,
