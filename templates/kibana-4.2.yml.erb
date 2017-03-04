@@ -46,13 +46,13 @@ server.ssl.cert: <%= @ssl_cert_file %>
 
 # If you need to provide a CA certificate for your Elasticsearch instance, put
 # the path of the pem file here.
-<%- if @ca_cert -%>
-elasticsearch.ssl.ca: <%= @ca_cert %>
+<%- if @elasticsearch_ca_cert -%>
+elasticsearch.ssl.ca: <%= @elasticsearch_ca_cert %>
 <%- end -%>
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
-elasticsearch.ssl.verify: <%= @verify_ssl %>
+elasticsearch.ssl.verify: <%= @elasticsearch_verify_ssl %>
 
 # Time in milliseconds to wait for elasticsearch to respond to pings, defaults to
 # request_timeout setting
@@ -74,3 +74,13 @@ pid.file: <%= @pid_file %>
 
 # If you would like to send the log output to a file you can set the path below.
 logging.dest: <%= @log_file %>
+
+# Set the value of this setting to true to suppress all logging output.
+logging.silent: <%= @logging_silent %>
+
+# Set the value of this setting to true to suppress all logging output other than error messages.
+logging.quiet: <%= @logging_quiet %>
+
+# Set the value of this setting to true to log all events, including system usage information
+# and all requests.
+logging.verbose: <%= @logging_verbose %>

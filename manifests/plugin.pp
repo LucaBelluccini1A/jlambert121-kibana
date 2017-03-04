@@ -38,7 +38,7 @@ define kibana::plugin(
     fail('Kibana::plugin source is not valid. Must be <org>/<package>/<version> or direct http/https or file uri')
   }
 
-  $uninstall_cmd = "${bin_name} --remove ${name}"
+  $uninstall_cmd = "${bin_name} --remove ${plugin_name}"
 
   Exec {
     path      => [ '/bin', '/usr/bin', '/usr/sbin', "${install_root}/kibana/bin" ],
@@ -49,9 +49,10 @@ define kibana::plugin(
     timeout   => 600,
   }
 
+  $name_file_path = "${plugins_dir}/${plugin_name}/.name"
+
   case $ensure {
     'installed', 'present': {
-      $name_file_path = "${plugins_dir}/${plugin_name}/.name"
       exec {"install_plugin_${plugin_name}":
         command => $install_cmd,
         creates => $name_file_path,
