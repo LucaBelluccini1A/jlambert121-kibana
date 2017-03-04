@@ -84,6 +84,40 @@
 #   Boolean.
 #   Default: true
 #
+# [*elasticsearch_cert_ssl*]
+#   String.  Absolute path of Elasticsearhc SSL certificate (.crt)
+#   Default: undef
+#
+# [*elasticsearch_key_ssl*]
+#   String.  Absolute path of Elasticsearhc SSL key (.key)
+#   Default: undef
+#
+# [*logging_silent*]
+#   Boolean.
+#   Default: fakse
+#
+# [*logging_quiet*]
+#   Boolean.
+#   Default: false
+#
+# [*logging_verbose*]
+#   Boolean.
+#   Default: false
+#
+# [*ops_interval*]
+#   Integer. Interval in ms to sample system and process performance metrics.
+#   Minimum is 100ms.
+#   Defaults to 5000.
+#
+# [*elasticsearch_requestHeadersWhitelist*]
+#   String. List of Kibana client-side headers to send to Elasticsearch.
+#   To send *no* client-side headers, set this value to [] (an empty list).
+#   Default: undef
+#
+# [*elasticsearch_customHeaders*]
+#   String. Header names and values that are sent to Elasticsearch as array.
+
+#
 # === Examples
 #
 # * Installation:
