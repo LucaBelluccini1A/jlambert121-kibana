@@ -135,7 +135,9 @@ class kibana::install (
       ensure  => file,
       path    => '/etc/init.d/kibana',
       content => template('kibana/kibana.legacy.service.lsbheader.erb', "kibana/${::kibana::params::init_script_osdependend}", 'kibana/kibana.legacy.service.maincontent.erb'),
-      mode    => '0755',
+      owner   => kibana,
+      group   => kibana,
+      mode    => '0750',
       notify  => Class['::kibana::service'],
     }
 

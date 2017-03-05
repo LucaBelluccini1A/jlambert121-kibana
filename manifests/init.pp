@@ -161,6 +161,12 @@ class kibana (
   $manage_group                          = $::kibana::params::manage_group,
   $user                                  = $::kibana::params::user,
   $group                                 = $::kibana::params::group,
+  $security_encryptionKey                = $::kibana::params::security_encryptionKey,
+  $security_sessionTimeout               = $::kibana::params::security_sessionTimeout,
+  $security_skipSslCheck                 = $::kibana::params::security_skipSslCheck,
+  $security_enabled                      = $::kibana::params::security_enabled,
+  $security_cookieName                   = $::kibana::params::security_cookieName,
+  $security_secureCookies                = $::kibana::params::security_secureCookies,
 ) inherits kibana::params {
 
   if !is_integer($port) {

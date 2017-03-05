@@ -119,3 +119,33 @@ logging.verbose: <%= @logging_verbose %>
 # Set the interval in milliseconds to sample system and process performance
 # metrics. Minimum is 100ms. Defaults to 5000.
 ops.interval: <%= @ops_interval %>
+
+<%- if @security_enabled -%>
+# X-Pack enabled
+xpack.security.enabled: <%= @security_enabled %>
+<%- end -%>
+
+<%- if @security_secureCookies -%>
+# X-Pack secure cookies
+xpack.security.secureCookies: <%= @security_secureCookies %>
+<%- end -%>
+
+<%- if @security_cookieName -%>
+# X-Pack cookie name
+xpack.security.cookieName: <%= @security_cookieName %>
+<%- end -%>
+
+<%- if @security_encryptionKey -%>
+# X-Pack encryptionKey
+xpack.security.encryptionKey: <%= @security_encryptionKey %>
+<%- end -%>
+
+<%- if @security_sessionTimeout -%>
+# X-Pack sessionTimeout in ms
+xpack.security.sessionTimeout: <%= @security_sessionTimeout %>
+<%- end -%>
+
+<%- if @security_skipSslCheck -%>
+# X-Pack skipSslCheck
+xpack.security.skipSslCheck: <%= @security_skipSslCheck %>
+<%- end -%>

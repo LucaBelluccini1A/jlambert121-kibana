@@ -84,3 +84,18 @@ logging.quiet: <%= @logging_quiet %>
 # Set the value of this setting to true to log all events, including system usage information
 # and all requests.
 logging.verbose: <%= @logging_verbose %>
+
+<%- if @security_encryptionKey -%>
+# Shield encryptionKey
+shield.encryptionKey: <%= @security_encryptionKey %>
+<%- end -%>
+
+<%- if @security_sessionTimeout -%>
+# Shield sessionTimeout in ms
+shield.sessionTimeout: <%= @security_sessionTimeout %>
+<%- end -%>
+
+<%- if @security_skipSslCheck -%>
+# Shield skipSslCheck
+shield.skipSslCheck: <%= @security_skipSslCheck %>
+<%- end -%>

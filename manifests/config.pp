@@ -33,7 +33,32 @@ class kibana::config (
   $elasticsearch_customHeaders           = $::kibana::elasticsearch_customHeaders,
   $base_path                             = $::kibana::base_path,
   $log_file                              = $::kibana::log_file,
+  $security_encryptionKey                = $::kibana::security_encryptionKey,
+  $security_sessionTimeout               = $::kibana::security_sessionTimeout,
+  $security_skipSslCheck                 = $::kibana::security_skipSslCheck,
+  $security_enabled                      = $::kibana::security_enabled,
+  $security_cookieName                   = $::kibana::security_cookieName,
+  $security_secureCookies                = $::kibana::security_secureCookies,
 ){
+
+  if $security_enabled {
+    validate_bool($security_enabled)
+  }
+  if $security_encryptionKey {
+    validate_string($security_encryptionKey) 
+  }
+  if $security_sessionTimeout {
+    validate_integer($security_sessionTimeout)
+  }
+  if $security_skipSslCheck {
+    validate_bool($security_skipSslCheck)
+  }
+  if $security_cookieName {
+    validate_string($security_cookieName)
+  }
+  if $security_secureCookies {
+    validate_bool($security_secureCookies)
+  }
 
   case $version {
     /^4\.[01]/: {

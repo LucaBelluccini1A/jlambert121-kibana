@@ -131,12 +131,16 @@ describe 'kibana::config', :type => :class do
         :elasticsearch_requestHeadersWhitelist => [ 'authentication' ],
         :elasticsearch_customHeaders           => '{customheader:customcontent}',
         :log_file                              => 'test.log',
+        :security_enabled                      => true,
+        :security_encryptionKey                => '012345678901234567890123456789012',
       })
     }
 
     it { should contain_file('/opt/kibana/config/kibana.yml').with_content(/^ops\.interval:/) }
     it { should contain_file('/opt/kibana/config/kibana.yml').with_content(/elasticsearch\.requestHeadersWhitelist: \[ authentication \]/) }
     it { should contain_file('/opt/kibana/config/kibana.yml').with_content(/elasticsearch\.customHeaders: \{customheader:customcontent\}/) }
+    it { should contain_file('/opt/kibana/config/kibana.yml').with_content(/xpack\.security\.enabled: true/) }
+    it { should contain_file('/opt/kibana/config/kibana.yml').with_content(/xpack\.security\.encryptionKey: 012345678901234567890123456789012/) }
   end
 
 

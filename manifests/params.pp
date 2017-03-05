@@ -38,6 +38,12 @@ class kibana::params {
   $elasticsearch_customHeaders           = undef
   $manage_user                           = true
   $manage_group                          = true
+  $security_enabled                      = undef
+  $security_encryptionKey                = undef
+  $security_sessionTimeout               = undef
+  $security_skipSslCheck                 = undef
+  $security_cookieName                   = undef
+  $security_secureCookies                = undef
 
   # Download tool
 

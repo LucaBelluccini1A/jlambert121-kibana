@@ -43,7 +43,7 @@ start() {
     [ -x $exec ] || exit 5
     echo -n $"Starting $prog: "
     # if not running, start it up here, usually something like "daemon $exec"
-    daemon --user $KIBANA_USER --pidfile $pidfile $exec -p $pidfile 1>"$KIBANA_LOG" 2>&1 &
+    daemon --user $KIBANA_USER --pidfile $pidfile $exec -p $pidfile 1>>"$KIBANA_LOG" 2>&1 &
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
