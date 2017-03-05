@@ -11,6 +11,7 @@ define kibana::plugin(
   $user                   = $::kibana::user,
   $version                = $::kibana::version,
   ) {
+  $plugins_dir = "${install_root}/kibana/installedPlugins"
 
   case $version {
     /^5\./: {
@@ -21,24 +22,32 @@ define kibana::plugin(
     }
   }
 
-  $plugins_dir = "${install_root}/kibana/installedPlugins"
-
   validate_string($source)
   $org_package_version = split($source, '/')
   if $source =~ /^(https?|file):\/\/.*$/ and $name {
     $plugin_name = $title
-    $install_cmd = "${bin_name} --install ${plugin_name} --url ${source}"
+    $install_cmd_t = "${bin_name} --install ${plugin_name} --url ${source}"
   }
   elsif is_array($org_package_version) and size($org_package_version) == 3 {
     $plugin_name = $org_package_version[-2]
-    $install_cmd = "${bin_name} --install ${source}"
+    $install_cmd_t = "${bin_name} --install ${source}"
   }
   else
   {
     fail('Kibana::plugin source is not valid. Must be <org>/<package>/<version> or direct http/https or file uri')
   }
 
-  $uninstall_cmd = "${bin_name} --remove ${plugin_name}"
+
+  case $version {
+    /^5\./: {
+      $install_cmd = "${bin_name} install ${source}"
+      $uninstall_cmd = "${bin_name} remove ${plugin_name}"
+    }
+    default: {
+      $install_cmd = $install_cmd_t
+      $uninstall_cmd = "${bin_name} --remove ${plugin_name}"
+    }
+  }
 
   Exec {
     path      => [ '/bin', '/usr/bin', '/usr/sbin', "${install_root}/kibana/bin" ],
