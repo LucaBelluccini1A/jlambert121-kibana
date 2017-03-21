@@ -131,25 +131,58 @@ class kibana::install (
 
   if $service_provider == 'init' {
 
-    file { 'kibana-init-script':
-      ensure  => file,
-      path    => '/etc/init.d/kibana',
-      content => template('kibana/kibana.legacy.service.lsbheader.erb', "kibana/${::kibana::params::init_script_osdependend}", 'kibana/kibana.legacy.service.maincontent.erb'),
-      owner   => kibana,
-      group   => kibana,
-      mode    => '0750',
-      notify  => Class['::kibana::service'],
+    case $version {
+      /^5\./: {
+        file { 'kibana-init-script':
+          ensure  => file,
+          path    => '/etc/init.d/kibana',
+          content => template('kibana/kibana-5.x.legacy.service.lsbheader.erb', "kibana/${::kibana::params::init_script_osdependend}", 'kibana/kibana-5.x.legacy.service.maincontent.erb'),
+          owner   => kibana,
+          group   => kibana,
+          mode    => '0750',
+          notify  => Class['::kibana::service'],
+        }
+      }
+      /^4\./: {
+        file { 'kibana-init-script':
+          ensure  => file,
+          path    => '/etc/init.d/kibana',
+          content => template('kibana/kibana.legacy.service.lsbheader.erb', "kibana/${::kibana::params::init_script_osdependend}", 'kibana/kibana.legacy.service.maincontent.erb'),
+          owner   => kibana,
+          group   => kibana,
+          mode    => '0750',
+          notify  => Class['::kibana::service'],
+        }
+      }
+      default: {
+        fail("Kibana version ${version} is not supported by this module")
+      }
     }
 
   }
 
   if $service_provider == 'systemd' {
 
-    file { 'kibana-init-script':
-      ensure  => file,
-      path    => "${::kibana::params::systemd_provider_path}/kibana.service",
-      content => template('kibana/kibana.service.erb'),
-      notify  => Class['::kibana::service'],
+    case $version {
+      /^5\./: {
+        file { 'kibana-init-script':
+          ensure  => file,
+          path    => "${::kibana::params::systemd_provider_path}/kibana.service",
+          content => template('kibana/kibana-5.x.service.erb'),
+          notify  => Class['::kibana::service'],
+        }
+      }
+      /^4\./: {
+        file { 'kibana-init-script':
+          ensure  => file,
+          path    => "${::kibana::params::systemd_provider_path}/kibana.service",
+          content => template('kibana/kibana.service.erb'),
+          notify  => Class['::kibana::service'],
+        }
+      }
+      default: {
+        fail("Kibana version ${version} is not supported by this module")
+      }
     }
 
     file { 'kibana-run-dir':

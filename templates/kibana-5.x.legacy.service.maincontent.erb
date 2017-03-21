@@ -19,8 +19,8 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 export PATH
 
 name=kibana
-program=/usr/share/kibana/bin/kibana
-args=-c\\\ /etc/kibana/kibana.yml
+program=<%= @install_path %>/kibana/bin/kibana
+args=-c\\\ <%= @install_path %>/kibana/config/kibana.yml
 pidfile="/var/run/$name.pid"
 
 [ -r /etc/default/$name ] && . /etc/default/$name
@@ -40,9 +40,9 @@ emit() {
 start() {
 
   # Ensure the log directory is setup correctly.
-  [ ! -d "/var/log/kibana/" ] && mkdir "/var/log/kibana/"
-  chown "$user":"$group" "/var/log/kibana/"
-  chmod 755 "/var/log/kibana/"
+  [ ! -d "<%= @log_path %>" ] && mkdir "<%= @log_path %>"
+  chown "$user":"$group" "<%= @log_path %>"
+  chmod 755 "<%= @log_path %>"
 
 
   # Setup any environmental stuff beforehand
@@ -54,7 +54,7 @@ start() {
     
     cd \"$chdir\"
     exec \"$program\" $args
-  " >> /var/log/kibana/kibana.stdout 2>> /var/log/kibana/kibana.stderr &
+  " >> <%= @log_path %>/kibana.stdout 2>> <%= @log_path %>/kibana.stderr &
 
   # Generate the pidfile from here. If we instead made the forked process
   # generate it there will be a race condition between the pidfile writing
