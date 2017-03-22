@@ -49,12 +49,12 @@ startup_timeout: <%= @startup_timeout %>
 
 # Set to false to have a complete disregard for the validity of the SSL
 # certificate.
-verify_ssl: <%= @verify_ssl %>
+verify_ssl: <%= @elasticsearch_verify_ssl %>
 
 # If you need to provide a CA certificate for your Elasticsarech instance, put
 # the path of the pem file here.
-<%- if @ca_cert -%>
-ca: <%= @ca_cert %>
+<%- if @elasticsearch_ca_cert -%>
+ca: <%= @elasticsearch_ca_cert %>
 <%- end -%>
 
 # SSL for outgoing requests from the Kibana Server (PEM formatted)
@@ -68,6 +68,22 @@ ssl_cert_file: <%= @ssl_cert_file %>
 
 # Set the path to where you would like the process id file to be created.
 pid_file: <%= @pid_file %>
+
+
+<%- if @security_encryptionKey -%>
+# Shield encryptionKey
+shield.encryptionKey: <%= @security_encryptionKey %>
+<%- end -%>
+
+<%- if @security_sessionTimeout -%>
+# Shield sessionTimeout in ms
+shield.sessionTimeout: <%= @security_sessionTimeout %>
+<%- end -%>
+
+<%- if @security_skipSslCheck -%>
+# Shield skipSslCheck
+shield.skipSslCheck: <%= @security_skipSslCheck %>
+<%- end -%>
 
 # Plugins that are included in the build, and no longer found in the plugins/ folder
 bundled_plugin_ids:

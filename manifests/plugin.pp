@@ -8,26 +8,46 @@ define kibana::plugin(
   $ensure                 = 'present',
   $install_root           = $::kibana::install_path,
   $group                  = $::kibana::group,
-  $user                   = $::kibana::user) {
-
+  $user                   = $::kibana::user,
+  $version                = $::kibana::version,
+  ) {
   $plugins_dir = "${install_root}/kibana/installedPlugins"
+
+  case $version {
+    /^5\./: {
+      $bin_name = 'kibana-plugin'
+    }
+    default: {
+      $bin_name = 'kibana plugin'
+    }
+  }
 
   validate_string($source)
   $org_package_version = split($source, '/')
   if $source =~ /^(https?|file):\/\/.*$/ and $name {
     $plugin_name = $title
-    $install_cmd = "kibana plugin --install ${plugin_name} --url ${source}"
+    $install_cmd_t = "${bin_name} --install ${plugin_name} --url ${source}"
   }
   elsif is_array($org_package_version) and size($org_package_version) == 3 {
     $plugin_name = $org_package_version[-2]
-    $install_cmd = "kibana plugin --install ${source}"
+    $install_cmd_t = "${bin_name} --install ${source}"
   }
   else
   {
-    fail("Kibana::plugin source is not valid. Must be <org>/<package>/<version> or direct http/https or file uri")
+    fail('Kibana::plugin source is not valid. Must be <org>/<package>/<version> or direct http/https or file uri')
   }
-  
-  $uninstall_cmd = "kibana plugin --remove ${name}"
+
+
+  case $version {
+    /^5\./: {
+      $install_cmd = "${bin_name} install ${source}"
+      $uninstall_cmd = "${bin_name} remove ${plugin_name}"
+    }
+    default: {
+      $install_cmd = $install_cmd_t
+      $uninstall_cmd = "${bin_name} --remove ${plugin_name}"
+    }
+  }
 
   Exec {
     path      => [ '/bin', '/usr/bin', '/usr/sbin', "${install_root}/kibana/bin" ],
@@ -38,9 +58,10 @@ define kibana::plugin(
     timeout   => 600,
   }
 
+  $name_file_path = "${plugins_dir}/${plugin_name}/.name"
+
   case $ensure {
     'installed', 'present': {
-      $name_file_path = "${plugins_dir}/${plugin_name}/.name"
       exec {"install_plugin_${plugin_name}":
         command => $install_cmd,
         creates => $name_file_path,

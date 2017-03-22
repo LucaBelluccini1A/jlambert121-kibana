@@ -12,7 +12,7 @@
 #   String.  HTTP path to fetch kibana package from
 #   Default: https://download.elasticsearch.org/kibana/kibana
 #
-# [*ca_cert*]
+# [*elasticsearch_ca_cert*]
 #   String: Path to ca cert (PEM formatted)
 #   Default: undef
 #
@@ -80,9 +80,43 @@
 #   Boolean.
 #   Default: false
 #
-# [*verify_ssl*]
+# [*elasticsearch_verify_ssl*]
 #   Boolean.
 #   Default: true
+#
+# [*elasticsearch_cert_ssl*]
+#   String.  Absolute path of Elasticsearhc SSL certificate (.crt)
+#   Default: undef
+#
+# [*elasticsearch_key_ssl*]
+#   String.  Absolute path of Elasticsearhc SSL key (.key)
+#   Default: undef
+#
+# [*logging_silent*]
+#   Boolean.
+#   Default: fakse
+#
+# [*logging_quiet*]
+#   Boolean.
+#   Default: false
+#
+# [*logging_verbose*]
+#   Boolean.
+#   Default: false
+#
+# [*ops_interval*]
+#   Integer. Interval in ms to sample system and process performance metrics.
+#   Minimum is 100ms.
+#   Defaults to 5000.
+#
+# [*elasticsearch_requestHeadersWhitelist*]
+#   String. List of Kibana client-side headers to send to Elasticsearch.
+#   To send *no* client-side headers, set this value to [] (an empty list).
+#   Default: undef
+#
+# [*elasticsearch_customHeaders*]
+#   String. Header names and values that are sent to Elasticsearch as array.
+
 #
 # === Examples
 #
@@ -91,32 +125,48 @@
 #
 #
 class kibana (
-  $version                = $::kibana::params::version,
-  $base_url               = $::kibana::params::base_url,
-  $ca_cert                = $::kibana::params::ca_cert,
-  $install_path           = $::kibana::params::install_path,
-  $tmp_dir                = $::kibana::params::tmp_dir,
-  $port                   = $::kibana::params::port,
-  $bind                   = $::kibana::params::bind,
-  $es_url                 = $::kibana::params::es_url,
-  $es_preserve_host       = $::kibana::params::es_preserve_host,
-  $kibana_index           = $::kibana::params::kibana_index,
-  $elasticsearch_username = $::kibana::params::elasticsearch_username,
-  $elasticsearch_password = $::kibana::params::elasticsearch_password,
-  $default_app_id         = $::kibana::params::default_app_id,
-  $pid_file               = $::kibana::params::pid_file,
-  $plugins                = $::kibana::params::plugins,
-  $request_timeout        = $::kibana::params::request_timeout,
-  $shard_timeout          = $::kibana::params::shard_timeout,
-  $ping_timeout           = $::kibana::params::ping_timeout,
-  $startup_timeout        = $::kibana::params::startup_timeout,
-  $ssl_cert_file          = $::kibana::params::ssl_cert_file,
-  $ssl_key_file           = $::kibana::params::ssl_key_file,
-  $verify_ssl             = $::kibana::params::verify_ssl,
-  $base_path              = $::kibana::params::base_path,
-  $log_file               = $::kibana::params::log_file,
-  $manage_user            = $::kibana::params::manage_user,
-  $manage_group           = $::kibana::params::manage_group,
+  $version                               = $::kibana::params::version,
+  $base_url                              = $::kibana::params::base_url,
+  $elasticsearch_ca_cert                 = $::kibana::params::elasticsearch_ca_cert,
+  $install_path                          = $::kibana::params::install_path,
+  $tmp_dir                               = $::kibana::params::tmp_dir,
+  $port                                  = $::kibana::params::port,
+  $bind                                  = $::kibana::params::bind,
+  $es_url                                = $::kibana::params::es_url,
+  $es_preserve_host                      = $::kibana::params::es_preserve_host,
+  $kibana_index                          = $::kibana::params::kibana_index,
+  $elasticsearch_username                = $::kibana::params::elasticsearch_username,
+  $elasticsearch_password                = $::kibana::params::elasticsearch_password,
+  $default_app_id                        = $::kibana::params::default_app_id,
+  $pid_file                              = $::kibana::params::pid_file,
+  $plugins                               = $::kibana::params::plugins,
+  $request_timeout                       = $::kibana::params::request_timeout,
+  $shard_timeout                         = $::kibana::params::shard_timeout,
+  $ping_timeout                          = $::kibana::params::ping_timeout,
+  $startup_timeout                       = $::kibana::params::startup_timeout,
+  $ssl_cert_file                         = $::kibana::params::ssl_cert_file,
+  $ssl_key_file                          = $::kibana::params::ssl_key_file,
+  $elasticsearch_verify_ssl              = $::kibana::params::elasticsearch_verify_ssl,
+  $elasticsearch_cert_ssl                = $::kibana::params::elasticsearch_cert_ssl,
+  $elasticsearch_key_ssl                 = $::kibana::params::elasticsearch_key_ssl,
+  $logging_silent                        = $::kibana::params::logging_silent,
+  $logging_quiet                         = $::kibana::params::logging_quiet,
+  $logging_verbose                       = $::kibana::params::logging_verbose,
+  $ops_interval                          = $::kibana::params::ops_interval,
+  $elasticsearch_requestHeadersWhitelist = $::kibana::params::elasticsearch_requestHeadersWhitelist,
+  $elasticsearch_customHeaders           = $::kibana::params::elasticsearch_customHeaders,
+  $base_path                             = $::kibana::params::base_path,
+  $log_file                              = $::kibana::params::log_file,
+  $manage_user                           = $::kibana::params::manage_user,
+  $manage_group                          = $::kibana::params::manage_group,
+  $user                                  = $::kibana::params::user,
+  $group                                 = $::kibana::params::group,
+  $security_encryptionKey                = $::kibana::params::security_encryptionKey,
+  $security_sessionTimeout               = $::kibana::params::security_sessionTimeout,
+  $security_skipSslCheck                 = $::kibana::params::security_skipSslCheck,
+  $security_enabled                      = $::kibana::params::security_enabled,
+  $security_cookieName                   = $::kibana::params::security_cookieName,
+  $security_secureCookies                = $::kibana::params::security_secureCookies,
 ) inherits kibana::params {
 
   if !is_integer($port) {
@@ -133,7 +183,13 @@ class kibana (
   validate_absolute_path($pid_file)
   validate_absolute_path($log_file)
   validate_bool($es_preserve_host)
-  validate_bool($verify_ssl)
+  validate_bool($elasticsearch_verify_ssl)
+  if $elasticsearch_cert_ssl {
+    validate_absolute_path($elasticsearch_cert_ssl)
+  }
+  if $elasticsearch_key_ssl {
+    validate_absolute_path($elasticsearch_key_ssl)
+  }
   validate_bool($manage_user)
   validate_bool($manage_group)
 

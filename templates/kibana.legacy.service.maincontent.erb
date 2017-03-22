@@ -33,7 +33,7 @@ chmod 640 "$pidfile"
 
 touch $KIBANA_LOG
 chown "$KIBANA_USER":"$KIBANA_GROUP" "$KIBANA_LOG"
-chmod 640 "$KIBANA_LOG"
+chmod 644 "$KIBANA_LOG"
 
 exec=$KIBANA_HOME/bin/$prog
 lockfile=/var/lock/subsys/$prog
@@ -43,7 +43,7 @@ start() {
     [ -x $exec ] || exit 5
     echo -n $"Starting $prog: "
     # if not running, start it up here, usually something like "daemon $exec"
-    daemon --user $KIBANA_USER --pidfile $pidfile $exec -p $pidfile 1>"$KIBANA_LOG" 2>&1 &
+    daemon --user $KIBANA_USER --pidfile $pidfile $exec -p $pidfile 1>>"$KIBANA_LOG" 2>&1 &
     retval=$?
     echo
     [ $retval -eq 0 ] && touch $lockfile
